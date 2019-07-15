@@ -34,8 +34,13 @@ public class ProjectController {
 		if (errorMap != null) {
 			return errorMap;
 		}
+
+		HttpStatus returnStatus = HttpStatus.OK;
+		if (null == project.getId()) {
+			returnStatus = HttpStatus.CREATED;
+		}
 		projectService.saveOrUpdateProject(project);
-		return new ResponseEntity<Project>(project,HttpStatus.CREATED);
+		return new ResponseEntity<Project>(project, returnStatus);
 	}
 	
 	@GetMapping("/{projectId}")
