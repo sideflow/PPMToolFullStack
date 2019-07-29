@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- PROPRE AU TESTS EAF-DOMAIN -->
+
+<configuration>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<encoder>
+<!-- 			<pattern>[%-23date{yyyy-MM-dd HH:mm:ss.SSS}] %-5level [%thread] %logger{20}.%M - %message%n</pattern> -->
+			<pattern>%logger{20}.%M - %message%n</pattern>
+		</encoder>
+	</appender>
+
+	<!-- Root level -->
+	<root level="WARN">
+		<appender-ref ref="STDOUT" />
+	</root>
+
+</configuration>

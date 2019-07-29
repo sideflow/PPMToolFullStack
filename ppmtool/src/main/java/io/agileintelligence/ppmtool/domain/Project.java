@@ -2,6 +2,7 @@ package io.agileintelligence.ppmtool.domain;
 
 import java.util.Date;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -14,10 +15,8 @@ import javax.persistence.PreUpdate;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-import org.hibernate.annotations.Cascade;
-import org.hibernate.annotations.CascadeType;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class Project {
@@ -43,8 +42,8 @@ public class Project {
 	@JsonFormat(pattern = "yyyy-mm-dd")
 	private Date updatedAt;
 	
-	@OneToOne(fetch = FetchType.EAGER,  mappedBy = "project")
-	@Cascade(CascadeType.SAVE_UPDATE)
+	@OneToOne(fetch = FetchType.EAGER,  mappedBy = "project", orphanRemoval = true, cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+	@JsonIgnore
 	private Backlog backlog;
 	
 	public Project() {
@@ -60,6 +59,7 @@ public class Project {
 
 	public void setBacklog(Backlog backlog) {
 		this.backlog = backlog;
+		backlog.setProject(this);
 	}
 
 
