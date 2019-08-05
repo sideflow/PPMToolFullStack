@@ -1,7 +1,5 @@
 package io.agileintelligence.ppmtool.services;
 
-import java.util.List;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import io.agileintelligence.ppmtool.domain.Backlog;
 import io.agileintelligence.ppmtool.domain.Project;
-import io.agileintelligence.ppmtool.domain.ProjectTask;
 import io.agileintelligence.ppmtool.exceptions.ProjectException;
 import io.agileintelligence.ppmtool.repositories.BacklogRepository;
 import io.agileintelligence.ppmtool.repositories.ProjectRepository;
@@ -56,18 +53,20 @@ public class ProjectService {
 	}
 
 	private void attachExistingBacklog(Project project, String projectIdentifier) {
+		String projectId = projectIdentifier.toUpperCase();
 		if (project.getId() != null) {
-			Backlog backlog = backlogRepository.findByProjectIdentifier(projectIdentifier);
+			Backlog backlog = backlogRepository.findByProjectIdentifier(projectId);
 			if (project.getBacklog() == null) {
 				project.setBacklog(backlog);
 			}
 		}
 	}
 	
-	public Project findProjectByIdentifier(String identifier) {
-		Project project = projectRepository.findByProjectIdentifier(identifier.toUpperCase());
+	public Project findProjectByIdentifier(String projectIdentifier) {
+		String projectId = projectIdentifier.toUpperCase();
+		Project project = projectRepository.findByProjectIdentifier(projectId);
 		if (project == null) {
-			throw new ProjectException("Project ID '" + identifier.toUpperCase() +"' does not exist");
+			throw new ProjectException("Project ID '" + projectId  +"' does not exist");
 		}
 		return project;
 	}
@@ -77,9 +76,10 @@ public class ProjectService {
 	}
 	
 	public void deleteProject(String projectIdentifier) {
-		Project project = projectRepository.findByProjectIdentifier(projectIdentifier);
+		String projectId = projectIdentifier.toUpperCase();
+		Project project = projectRepository.findByProjectIdentifier(projectId);
 		if (project == null) {
-			throw new ProjectException("Cannot delete project with ID "+projectIdentifier+". This project doesn't exist");
+			throw new ProjectException("Cannot delete project with ID "+projectId+". This project doesn't exist");
 		}
 		projectRepository.delete(project);
 	}
