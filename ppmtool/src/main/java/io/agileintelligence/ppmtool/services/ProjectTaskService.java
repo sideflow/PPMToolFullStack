@@ -45,6 +45,7 @@ public class ProjectTaskService {
 		if (projectTask.getStatus() == null || projectTask.getStatus() == "") {
 			projectTask.setStatus("TO_DO");
 		}
+		backlogRepository.save(backlog);
 		return projectTaskRepository.save(projectTask); 
 	}
 	
