@@ -88,6 +88,7 @@ public class ProjectTaskService {
 		if (! projectTask.getProjectIdentifier().equals(backlogId)) {
 			throw new ProjectException("Project task '" + updatedTask.getProjectSequence() +"' does not exist in '"+backlogId+"'");
 		}
+		updatedTask.setBacklog(backlog);
 		projectTask = updatedTask;
 		return projectTaskRepository.save(projectTask);
 	}

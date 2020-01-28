@@ -1,7 +1,14 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import { deleteProjectTask } from '../../../actions/BacklogActions';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 
 class ProjectTask extends Component {
+	onDeleteClick(backlogId, projectTaskId) {
+		this.props.deleteProjectTask(backlogId, projectTaskId);
+	}
+
 	render() {
 		const { project_task } = this.props;
 		let priorityString;
@@ -20,25 +27,34 @@ class ProjectTask extends Component {
 			priorityString = 'LOW';
 		}
 		return (
-			<div class="card mb-1 bg-light">
-				<div class={`card-header text-primary ${priorityClass}`}>
+			<div className="card mb-1 bg-light">
+				<div className={`card-header text-primary ${priorityClass}`}>
 					ID: {project_task.projectSequence} -- Priority: {priorityString}
 				</div>
-				<div class="card-body bg-light">
-					<h5 class="card-title">{project_task.summary}</h5>
-					<p class="card-text text-truncate ">{project_task.acceptanceCriteria}</p>
+				<div className="card-body bg-light">
+					<h5 className="card-title">{project_task.summary}</h5>
+					<p className="card-text text-truncate ">{project_task.acceptanceCriteria}</p>
 					<Link
 						to={`/updateProjectTask/${project_task.projectIdentifier}/${project_task.projectSequence}`}
-						class="btn btn-primary"
+						className="btn btn-primary"
 					>
 						View / Update
 					</Link>
 
-					<button class="btn btn-danger ml-4">Delete</button>
+					<button
+						className="btn btn-danger ml-4"
+						onClick={this.onDeleteClick.bind(
+							this,
+							project_task.projectIdentifier,
+							project_task.projectSequence
+						)}
+					>
+						Delete
+					</button>
 				</div>
 			</div>
 		);
 	}
 }
 
-export default ProjectTask;
+export default connect(null, { deleteProjectTask })(ProjectTask);

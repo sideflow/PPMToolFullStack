@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { GET_ERRORS, GET_BACKLOG, GET_PROJECT_TASK } from './types';
+import { GET_ERRORS, GET_BACKLOG, GET_PROJECT_TASK, DELETE_PROJECT_TASK } from './types';
 import { async } from 'q';
 
 export const addProjectTask = (backlogId, projectTask, history) => async (dispatch) => {
@@ -18,9 +18,9 @@ export const addProjectTask = (backlogId, projectTask, history) => async (dispat
 	}
 };
 
-export const updateProjectTask = (backlogId, projectTask, history) => async (dispatch) => {
+export const updateProjectTask = (backlogId, projectTaskId, projectTask, history) => async (dispatch) => {
 	try {
-		await axios.patch(`http://localhost:8081/api/backlog/${backlogId}`, projectTask);
+		await axios.patch(`http://localhost:8081/api/backlog/${backlogId}/${projectTaskId}`, projectTask);
 		history.push(`/projectBoard/${backlogId}`);
 		dispatch({
 			type: GET_ERRORS,
@@ -33,6 +33,16 @@ export const updateProjectTask = (backlogId, projectTask, history) => async (dis
 			payload: err.response.data
 		});
 	}
+};
+
+export const deleteProjectTask = (backlogId, projectTaskId) => async (dispatch) => {
+	//if (window.confirm(`You are deleting project task ${projectTaskId}, this action cannot be undone.`)) {
+	await axios.delete(`http://localhost:8081/api/backlog/${backlogId}/${projectTaskId}`);
+	dispatch({
+		type: DELETE_PROJECT_TASK,
+		payload: projectTaskId
+	});
+	//}
 };
 
 export const getBacklog = (backlogId) => async (dispatch) => {
