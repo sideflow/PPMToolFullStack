@@ -27,6 +27,7 @@ export const updateProjectTask = (backlogId, projectTask, history) => async (dis
 			payload: {}
 		});
 	} catch (err) {
+		history.push('/dashboard');
 		dispatch({
 			type: GET_ERRORS,
 			payload: err.response.data
@@ -57,7 +58,6 @@ export const getProjectTask = (backlog_id, projet_task_id, history) => async (di
 			payload: res.data
 		});
 	} catch (err) {
-		history.push('/dashboard');
 		dispatch({
 			type: GET_ERRORS,
 			payload: err.response.data
