@@ -1,5 +1,7 @@
 package io.agileintelligence.ppmtool.web;
 
+import java.security.Principal;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +32,7 @@ public class ProjectController {
 	private MapValidationErrorService mapValidationErrorService;
 	
 	@PostMapping("")
- 	public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result) {
+ 	public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result, Principal principal) {
 		
 		ResponseEntity<?> errorMap = mapValidationErrorService.mapValidationService(result);
 		if (errorMap != null) {
@@ -41,24 +43,24 @@ public class ProjectController {
 		if (null == project.getId()) {
 			returnStatus = HttpStatus.CREATED;
 		}
-		projectService.saveOrUpdateProject(project);
+		projectService.saveOrUpdateProject(project, principal.getName());
 		return new ResponseEntity<Project>(project, returnStatus);
 	}
 	
 	@GetMapping("/{projectId}")
-	public ResponseEntity<?> getProjectById(@PathVariable String projectId) {
-		Project project = projectService.findProjectByIdentifier(projectId.toUpperCase());
+	public ResponseEntity<?> getProjectById(@PathVariable String projectId, Principal principal) {
+		Project project = projectService.findProjectByIdentifier(projectId.toUpperCase(), principal.getName());
 		return new ResponseEntity<Project>(project, HttpStatus.OK);
 	}
 	
 	@GetMapping("/all")
-	public Iterable<Project> getAllProjects() {
-		return projectService.findAllProjects();
+	public Iterable<Project> getAllProjects(Principal principal) {
+		return projectService.findAllProjects(principal.getName());
 	}
 	
 	@DeleteMapping("/{projectId}")
-	public ResponseEntity<?> deleteProjectById(@PathVariable String projectId) {
-		projectService.deleteProject(projectId.toUpperCase());
+	public ResponseEntity<?> deleteProjectById(@PathVariable String projectId, Principal principal) {
+		projectService.deleteProject(projectId.toUpperCase(), principal.getName());
 		return new ResponseEntity<String>("Project with Id : '"+projectId+"' was deleted", HttpStatus.OK);
 	}
 }

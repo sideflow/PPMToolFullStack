@@ -7,9 +7,11 @@ import org.springframework.stereotype.Service;
 
 import io.agileintelligence.ppmtool.domain.Backlog;
 import io.agileintelligence.ppmtool.domain.Project;
+import io.agileintelligence.ppmtool.domain.User;
 import io.agileintelligence.ppmtool.exceptions.ProjectException;
 import io.agileintelligence.ppmtool.repositories.BacklogRepository;
 import io.agileintelligence.ppmtool.repositories.ProjectRepository;
+import io.agileintelligence.ppmtool.repositories.UserRepository;
 
 @Service
 public class ProjectService {
@@ -21,10 +23,40 @@ public class ProjectService {
     
     @Autowired
     private BacklogRepository backlogRepository;
+    
+    @Autowired
+    private UserRepository userRepository;
 
-	public Project saveOrUpdateProject(Project project) {
+	public Project saveOrUpdateProject(Project project, String username) {
+		
+
+		if(project.getId() != null){
+            Project existingProject = projectRepository.findByProjectIdentifier(project.getProjectIdentifier());
+            
+            if(existingProject !=null &&(!existingProject.getProjectLeader().equals(username))){
+            
+            	throw new ProjectException("Project not found in your account");
+            
+            } else if(existingProject == null){
+                
+            	throw new ProjectException("Project with ID: '"+project.getProjectIdentifier()+"' cannot be updated because it doesn't exist");
+            }
+        }
+		
 		String projectIdentifier = project.getProjectIdentifier().toUpperCase();
 		try {
+			User user = userRepository.findByUsername(username);
+			project.setUser(user);
+			project.setProjectLeader(user.getUsername());
+			project.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+			
+			if (project.getId() == null) {
+				Backlog backlog = new Backlog();
+				project.setBacklog(backlog);
+				backlog.setProject(project);
+				backlog.setProjectIdentifier(project.getProjectIdentifier().toUpperCase());
+			}
+			
 			project.setProjectIdentifier(projectIdentifier);
 			handleNewOrExistingBackllog(project, projectIdentifier);
 			
@@ -62,26 +94,29 @@ public class ProjectService {
 		}
 	}
 	
-	public Project findProjectByIdentifier(String projectIdentifier) {
+	public Project findProjectByIdentifier(String projectIdentifier, String username) {
 		String projectId = projectIdentifier.toUpperCase();
 		Project project = projectRepository.findByProjectIdentifier(projectId);
 		if (project == null) {
 			throw new ProjectException("Project ID '" + projectId  +"' does not exist");
 		}
+		if (! project.getProjectLeader().equals(username))  {
+			throw new ProjectException("Project not found exception.");
+		}
 		return project;
 	}
 
-	public Iterable<Project> findAllProjects() {
-		return projectRepository.findAll();
+	public Iterable<Project> findAllProjects(String username) {
+		return projectRepository.findAllByProjectLeader(username);
 	}
 	
-	public void deleteProject(String projectIdentifier) {
-		String projectId = projectIdentifier.toUpperCase();
-		Project project = projectRepository.findByProjectIdentifier(projectId);
-		if (project == null) {
-			throw new ProjectException("Cannot delete project with ID "+projectId+". This project doesn't exist");
-		}
-		projectRepository.delete(project);
+	public void deleteProject(String projectIdentifier, String username) {
+//		String projectId = projectIdentifier.toUpperCase();
+//		Project project = projectRepository.findByProjectIdentifier(projectId);
+//		if (project == null) {
+//			throw new ProjectException("Cannot delete project with ID "+projectId+". This project doesn't exist");
+//		}
+		projectRepository.delete(findProjectByIdentifier(projectIdentifier, username));
 	}
 
 
